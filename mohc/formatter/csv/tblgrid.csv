@@ -1,0 +1,12 @@
+"idgrid","idgridset","ShortName","LongName","Description","isUniform","isRegular"
+"1","1","UM ATM N96L38 P-grid","Unified Model Atmosphere N96L38  Physics Grid","The P-grid represents the locations of physics variables in the UM atmosphere model component. (further information required, e.g. by physics variables do we mean thermodynamic variables/quantities?)","1","0"
+"2","1","UM ATM N96L38 U-grid","Unified Model Atmosphere N96L38 U-grid","The U-grid represents the locations of vector quantities staggered one-half grid cell to the east (i direction) of P-grid locations.","1","0"
+"3","1","UM ATM N96L38 V-grid","Unified Model Atmosphere N96L38 V-grid","The V-grid represents the locations of vector quantities staggered one-half grid cell to the north (j direction) of P-grid locations.","1","0"
+"4","1","UM ATM N96L38 UV-grid","Unified Model Atmosphere N96L38 UV-grid","The UV-grid represents the location of quantities staggered from corresponding P-grid locations  by one-half grid cell in both the east (i) and north (j) directions. Quantities that incorporate the Heaviside function are discretized at UV-grid locations. (confirm this fact)","1","0"
+"5","2","UM OCN N180L40 T-grid","Unified Model Ocean N180L40 T-grid","(needs to be reviewed) The T-grid represents the locations of scalar quantities (e.g temperature) in the ocean model. T-grid locations lie at the centre of the enclosing grid cell.
+
+In the horizontal, T-grid points lie exactly half way in latitude between the UV-grid points, though the converse is not true.
+
+In the vertical, T-grid points lie exactly halfway between W-grid points, though, again, the converse is not true.","0","1"
+"6","2","UM OCN N180L40 UV-grid","Unified Model Ocean N180L40 UV-grid","(needs to be reviewed) The UV-grid represents the locations of vector/flux? quantities in the ocean model. UV-grid points lie at the northeast corner of the grid cell enclosing the corresponding T-grid point.","0","1"
+"7","2","UM OCN N180L40 W-grid","Unified Model Ocean N180L40 W-grid","(needs to be reviewed) The W-grid represents the locations of vector/flux? quantities at half-levels in the ocean model. W-grid locations lie directly above corresponding T-grid locations (i.e. for a given index, k).","0","1"

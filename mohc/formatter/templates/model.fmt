@@ -1,0 +1,55 @@
+{
+    "Model": {
+        "dao": {"ModelDao": {}},
+        "contents": {
+            "ResponsibleParty": {
+                "dao": {"ResponsiblePartyDao": {}}
+            },
+            "Citation": {
+                "dao": {"CitationDao": {}}
+            },
+            "SubModel": {
+                "dao": {"SubModelDao": {}},
+                "contents": {
+                    "ResponsibleParty": {
+                        "dao": {"ResponsiblePartyDao": {}}
+                    },
+                    "Citation": {
+                        "dao": {"CitationDao": {}}
+                    },
+                    "ComponentProperty": {
+                        "dao": {"ComponentPropertyDao": {}}
+                    },
+                    "SubModel": {
+                        "dao": {"SubModelDao": {}},
+                        "contents": {
+                            "ResponsibleParty": {
+                                "dao": {"ResponsiblePartyDao": {}}
+                            },
+                            "Citation": {
+                                "dao": {"CitationDao": {}}
+                            },
+                            "ComponentProperty": {
+                                "dao": {"ComponentPropertyDao": {}}
+                            },
+                            "SubModel": {
+                                "dao": {"SubModelDao": {}},
+                                "contents": {
+                                    "ResponsibleParty": {
+                                        "dao": {"ResponsiblePartyDao": {}}
+                                    },
+                                    "Citation": {
+                                        "dao": {"CitationDao": {}}
+                                    },
+                                    "ComponentProperty": {
+                                        "dao": {"ComponentPropertyDao": {}}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

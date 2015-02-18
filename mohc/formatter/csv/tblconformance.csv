@@ -1,0 +1,12 @@
+"id","requirementid","experimentid","noncompliance","method","compliance"
+"195","12","20",,"input","3D background emissions of sulphur dioxide from degassing volcanoes, taken from Andres and Kasgnoc (1998)."
+"196","15","20",,"config","Four members initialised from the matching historical ensemble element e.g. rcp85 element 2 was initialised from historical element 2.  The historical ensemble elements were initialised at 50-year intervals from piControl. "
+"197","17","20",,"config","Four member ensemble initialised from the matching historical ensemble, e.g. rcp85 member 2 was initialised from historical member 2.  This experiment covers the period from 2006 - 2100 - see also rcp85 extension."
+"198","22","20",,"config","The first element (r1i1p1) covers the period from 2006 to 2299 (294 years).  The remaining members extend from 2006 to 2100 (95 years)."
+"199","33","20",,"input",
+"200","34","20",,"input",
+"202","38","20",,"input","Includes methane (surface), nitrous oxide, halocarbons and ozone (stratospheric)."
+"203","41","20",,"input","Includes ethane, propane, carbon monoxide, formaldehyde, acetaldehyde, acetone, nitrous oxides (surface), and nitrous oxides (aircraft)."
+"204","42","20",,"input","Includes secondary organic aerosols from biogenic emissions.  All other natural aerosols are simulated interactively (ammonium sulphate, fossil-fuel black carbon, fossil-fuel organic carbon, biomass burning, sea-salt and mineral dust). Precursors include sulphur dioxide emissions, land DMS emissions and ocean DMS emissions."
+"205","45","20",,"input",
+"206","48","20",,"combination","The land surface scheme incorporates interactive vegetation, and as such dynamically simulates land cover.  Initial values for the prescribed fractions of urban areas, lakes, ice, broadleaf tree, needleleaf tree, C3 grass, C4 grass, shrub and bare soil are provided. "

@@ -1,0 +1,156 @@
+{
+    "id_dao": {"DocIdDao": {}},
+    "DocumentSet": {
+        "dao": {"DocumentSetDao": {}},
+        "contents": [
+            {
+                "ReferenceByName": {
+		    "dao": {"ModelComponentRefDao": {}},
+		    "link_to": "model_reference"
+                }
+            },
+            {
+                "NumericalExperiment": {
+                    "dao": {"NumericalExperimentDao": {}},
+                    "contents": [
+                        {
+                            "NumericalRequirement": {
+                                "dao": {"NumericalRequirementDao": {}}
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "DataObject": {
+                    "dao": {"DataObjectDao": {}}
+                }
+            },
+            {
+                "Platform": {
+                    "dao": {"PlatformDao": {}}
+                }
+            },
+            {
+                "SimulationRun": {
+                    "dao": {"SimulationRunDao": {}},
+                    "contents": [
+                        {
+                            "ResponsibleParty": {
+                                "dao": {"ResponsiblePartyDao": {}}
+                            }
+                        },
+                        {
+                            "Conformance": {
+                                "dao": {"ConformanceDao": {"type": "data_source"}},
+                                "contents": [
+                                    {
+                                        "DocReference": {
+                                            "link": {
+                                                "type": "DataObject",
+                                                "name": ""
+                                            },
+                                            "link_to": "sources_references"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "Conformance": {
+                                "dao": {"ConformanceDao": {}},
+                                "contents": [
+                                    {
+                                        "ReferenceByName": {
+                                            "dao": {"NumericalRequirementRefDao": {}},
+                                            "link_to": "sources_references"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "Deployment": {
+                                "dao": {"DeploymentDao": {}},
+                                "contents": [
+                                    {
+                                        "DocReference": {
+                                            "link": {
+                                                "type": "Platform",
+                                                "name": ""
+                                            },
+                                            "link_to": "platform_reference"
+                                        }
+                                     }
+                                ]
+                            }
+                        },
+                        {
+                            "DocReference": {
+                                "link": {
+                                    "type": "NumericalExperiment",
+                                    "name": ""
+                                },
+                                "link_to": "supports_references"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "Ensemble": {
+                    "dao": {"EnsembleDao": {}},
+                    "contents": [
+                        {
+                            "DocReference": {
+                                 "link": {
+                                     "type": "NumericalExperiment",
+                                     "name": ""
+                                 },
+                                 "link_to": "supports_reference"
+                            }
+                        },
+                        {
+                            "EnsembleMember": {
+                                "dao": {"EnsembleMemberDao": {}},
+                                "contents": [
+                                    {
+                                        "DocReference": {
+                                            "link": {
+                                                "type": "SimulationRun",
+                                                "name": ""
+                                            },
+                                            "link_to": "simulation_reference"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "GridSpec": {
+                    "dao": {"GridSpecDao": {}},
+                    "contents": [
+                        {
+                            "GridMosaic": {
+                                "dao": {"GridMosaicDao": {}},
+                                "esm_type": "model",
+                                "contents": [
+                                    {
+                                        "GridTile": {
+                                            "dao": {
+                                                "GridTileDao": {}
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

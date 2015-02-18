@@ -1,0 +1,314 @@
+<h2><a name="Introduction"></a> Introduction </h2>
+<p />
+The <a href="http://es-doc.org" target="_top">ES-DOC</a> project has recently produced a python API (pyesdoc) designed to allow modelling centres to generate metadata descriptions of models and model simulations structured according to the schema defined by the Common Information Model (CIM). The metadata formatter software described below uses pyesdoc to allow the production of CIM documents from metadata held in a data store (e.g. an sql database or csv files). This development serves as an initial release of the application that will be used to generate the CIM documents required for the CMIP6 programme and an example implementation of pyesdoc that can be shared with other modelling centres who are considering using pyesdoc. The software was developed as part of the Met Office's involvement in the <a href="https://verc.enes.org/ISENES2" target="_top">IS-ENES-2</a> project.
+<p />
+<h2><a name="pyesdoc"></a> pyesdoc </h2>
+<p />
+<a href="https://github.com/ES-DOC/esdoc-py-client" target="_top">pyesdoc</a> is a python client library for exploiting the ES-DOC eco-system. It supports documentation creation, validation, serialisation, publishing, I/O &amp; search use cases.
+<p />
+The metadata formatter makes use of a sub-set of pyesdoc's features:
+<p /> <ul>
+<li> it uses pyesdoc's representation of CIM elements (see <a href="https://github.com/ES-DOC/esdoc-py-client/tree/master/src/pyesdoc/ontologies/cim/v1" target="_top">pyesdoc's CIM ontology classes</a>) to build up an object representing a document
+</li> <li> it uses <code>pyesdoc.validate()</code> to validate the document it has created and
+</li> <li> it uses <code>pyesdoc.write()</code> to serialise the document object (as HTML, JSON or XML) and save the results to a file
+</li></ul> 
+<p />
+The program doesn't provide publishing functionality at the moment. You can use <code>pyesdoc.read()</code> to read in a document that you've made and saved to a file, and then use the <code>pyesdoc.publish()</code> method if you want to publish the document We hope to provide a publishing program in a future release.
+<p />
+<h2><a name="How_the_program_works"></a> How the program works </h2>
+<p />
+The metadata formatter code can be used to build model and experiment documents from metadata sources. The aim of the software is to automate the document drafting and publishing process as much as possible. The program was designed with the following requirements in mind:
+<p /> <ul>
+<li> it should be possible for multiple projects to use the program to produce the documents they require, ideally by defining their document formats via some sort of template
+</li> <li> it should use ES-DOC libraries to produce CIM objects and convert them to output documents
+</li> <li> it should allow users to plug in code to interact with their own metadata sources
+</li></ul> 
+<p />
+To meet these requirements, the program has been designed to split up the code that will have to be customised from site to site from the stable code. The structure is illustrated below.
+<p />
+<img src="structure.png" alt="structure.png" width='660' height='214' />
+<p />
+Templates and the template parser are stable and will require no modifications from run-to-run. Classes in the <code>elements</code> package may need small modifications (you may wish to modify which attributes are "required" and which are "optional" for a particular element, since the code marks more metadata as "required" than the CIM does). Classes in the <code>dao</code> package must be provided by each site to interact with its own metadata store(s). Two examples are provided in the package: one which interacts with a MySQL database and one which interacts with a set of (supplied) comma-separated value files.
+<p />
+This is an outline of how the document drafting process works. This process is described in detail with examples further on in the documentation.
+<p /> <ol>
+<li> the program reads in a template that defines the document components to be included - templates provide the flexibility to respond to changing metadata requirements from each project
+</li> <li> the template is used to build a tree of objects. Each object represents a CIM type, and it knows where to get its metadata
+</li> <li> the tree is walked from the top down. For each node in the tree: <ol>
+<li> metadata related to that object is pulled from the specified source
+</li> <li> an appropriate CIM object is created using the metadata
+</li> <li> the resulting CIM object is added to the document being built
+</li></ol> 
+</li></ol> 
+<p />
+At the end of the process, the document is validated and saved in the selected format (HTML, JSON or XML).
+<p />
+<h3><a name="A_detailed_example_a_model_docum"></a> A detailed example - a model document </h3>
+<p />
+The model template below defines a simple model document that contains a description of the model itself, responsible parties, citations and the first level of sub-models along with their properties.
+<p />
+<table>
+<tr><th>Template file</th><th>Parsed document tree</th></tr>
+<tr><td><pre>
+{
+    &#34;Model&#34;: {
+        &#34;dao&#34;: {&#34;ModelDao&#34;: {}},
+        &#34;contents&#34;: {
+             &#34;Citation&#34;: {
+                 &#34;dao&#34;: {&#34;CitationDao&#34;: {}}
+             },
+             &#34;ResponsibleParty&#34;: {
+                 &#34;dao&#34;: {&#34;ResponsiblePartyDao&#34;: {}}
+             },
+             &#34;SubModel&#34;: {
+                 &#34;dao&#34;: {&#34;SubModelDao&#34;: {}},
+                 &#34;contents&#34;: {
+                     &#34;ComponentProperty&#34;: {
+                         &#34;dao&#34;: {&#34;ComponentPropertyDao&#34;: {}}
+                     }
+                 }
+             }
+        }
+    }
+}
+</pre></td><td style="padding:15px"><img src="model_tree.png" alt="model_tree.png" width='574' height='372' /></td>
+</tr>
+</table>
+<p />
+Templates are supplied in JSON format. A template should contain a top-level node ("Model", in this case). That node can (optionally) contain other nodes in its "contents" attribute. Those nodes in turn can have contents. Every node must have a "data access object" or DAO. The DAO should contain the code required to connect to your metadata source, run the necessary queries or searches to pull out metadata for the object, and return it in a simple python dictionary.
+<p />
+When this template is parsed, a tree of objects is created. The diagram above is a representation of the tree that would result from parsing this template. In this case, we'd have a "Model" object at the top, and its contents would be a list containing "ResponsibleParty", "Citation" and "SubModel" objects. Each of the objects would have a dao attribute set to point to its dao object. The SubModel object would also contain a list of contents which just has a single object in it, ComponentProperty. 
+<p />
+Once the tree has been created, it is walked from the top node down, as follows.
+<p /> <ol>
+<li> ModelDao.metadata() is called to get metadata for the specified model name (which is provided via command-line arguments). Model.cim_element() is called with the metadata as an argument. This method creates a pyesdoc ModelComponent object and sets its attributes using the metadata. The resulting element is returned.
+</li> <li> The program loops over the model's contents. For each object in the list of contents, the DAO object is called to expand out a node into a list, if appropriate. For example, there may be multiple "Citations" for our model, so we first need to get a list of DAO objects, one for each citation. This is done by invoking CitationDao.daos_for_node(). We then loop over the returned list calling each DAO's metadata() method, then calling Citation.cim_element() to build the element from the metadata and then calling Citation.add_to_doc() to add the resulting element to the model document we're building.
+</li> <li> The above step is repeated for each node in contents. If the node contains other nodes, we will walk down that node's contents in the same way to build the container, and then add it to the model document.
+</li></ol> 
+<p />
+Some of the steps in this process are represented below.
+<p />
+<img src="sequence.png" alt="sequence.png" width='890' height='690' />
+<p />
+Once the tree has been walked, we call the pyesdoc.validate() method to check the contents and then use pyesdoc.write() to save the document.
+<p />
+Assuming we put the template into a file called "simple_model.fmt", the process above could be kicked off by running:
+<p />
+<pre>
+$ python bin/formatCIM.py -d model -f xml -m HadGEM2-ES -o hadgem2es.xml -p CMIP5 -t simple&#95;model.fmt
+</pre>
+<p />
+The resulting output file (<a href="hadgem2es.xml" target="_top">hadgem2es.xml</a>) is attached.
+<p />
+<h2><a name="The_structure_of_the_code"></a> The structure of the code </h2>
+<p />
+<h3><a name="bin"></a><a name="_bin_"></a> <code>bin</code> </h3>
+<p />
+The <code>bin</code> directory contains the command-line program, <code>formatCIM.py</code>.
+<p />
+<strong>Required environment</strong>
+<p />
+The script requires python 2.7. You will need the following libraries in your PYTHONPATH:
+<p /> <ul>
+<li> pyesdoc (obtain from <a href="https://github.com/ES-DOC/esdoc-py-client" target="_top">https://github.com/ES-DOC/esdoc-py-client</a>)
+</li> <li> pyesdoc's dependencies: <ul>
+<li> requests version 2.2.1 or later
+</li> <li> arrow 0.4.4 or later
+</li> <li> feedparser 5.1.3 or later
+</li></ul> 
+</li></ul> 
+<p />
+You also need to point to the metadata formatter's <code>lib</code> directory.
+<p />
+You may also have your own local libraries that you require for connecting to your metadata source. For example, to connect to my local database I need MySQLDb.
+<p />
+<strong>Running the program</strong>
+<p />
+<code>USAGE: formatCIM.py [-c config_dir] -d model|experiment|submodel [-e expt_name] -f html|json|xml [-m model_name] -o output_file -p project [-s submodel_name] -t template_file</code>
+<p />
+You must specify the type of document to produce (<code>-d model|experiment|submodel</code>), the format of the output file (<code>-f html|json|xml</code>), the output file path (<code>-o output_file</code>), the project name (<code>-p project</code>) and the template file (<code>-t template_file</code>). You will also have to supply other options for particular document types. For example, if you ask for a model document, you have to provide the model name (<code>-m model_name</code>).
+<p />
+The "submodel" document type is provided for convenience, since it is expected to be easier for scientists to check a draft for their component (e.g. "Atmosphere" or "Aerosols") rather than having to plough through the entire model document to find the sections they need to review. You can save the resulting document, but it is not expected that you will be able to publish such a document. To produce a sub-model document you will need to provide the model name (e.g. <code>-m HadGEM2-ES</code>) and the sub-model name (e.g. <code>-s Atmosphere</code>).
+<p />
+<h3><a name="csv"></a><a name="_csv_"></a> <code>csv</code> </h3>
+<p />
+The csv directory contains database tables dumped out in comma-separated format. These can be read by the <code>crem_csv</code> DAOs so that you can try some test runs of the software without access to the CREM database. Enough metadata has been supplied to allow you to produce a model document (for model HadGEM2-ES), submodel documents and an experiment document (experiment name rcp85).
+<p />
+<h3><a name="etc"></a><a name="_etc_"></a> <code>etc</code> </h3>
+<p />
+The <code>etc</code> directory contains an example configuration file, <code>format.cfg</code>. The <code>formatCIM.py</code> program will look for this file by default, but you can tell it to look for it in a different directory using the <code>-c config_dir</code> option.
+<p />
+<strong>Configuration file contents</strong>
+<p />
+The only mandatory section of the configuration file is the <code>[global]</code> section which must contain a definition of your institute, and the path to your DAO module such that python's <code>importlib.import_module</code> can use the string to import your DAOs.
+<p />
+<pre>
+[global]
+institute: mohc
+dbpkg: dao.crem_csv
+</pre>
+<p />
+You can also add a  <code>[database]</code> section that your DAOs can use to connect to your database, or source of metadata. For example, to use the <code>crem_csv</code> DAOs, you need the following:
+<p />
+<pre>
+[database]
+db_dir=/path/to/dir/containing/csv/files
+</pre>
+<p />
+Note that you can also provide configuration options, search constraints or other variables to your DAOs by adding them to the template. In our example above, the DAOs are all specified like this:
+<p />
+<pre>
+        &#34;dao&#34;: {&#34;ModelDao&#34;: {}}
+</pre>
+<p />
+i.e. with empty dictionaries as values, but you may want to insert some configuration:
+<p />
+<pre>
+        &#34;dao&#34;: {&#34;ModelDao&#34;: {&#34;dbname&#34;: &#34;modeldb&#34;, &#34;dbuser&#34;: &#34;foo&#34;}}
+</pre>
+<p />
+<h3><a name="lib"></a><a name="_lib_"></a> <code>lib</code> </h3>
+<p />
+The directory contains the following:
+<p /> <ul>
+<li> <code>cli.py</code> which stores methods shared by the command-line programs
+</li> <li> <code>config.py</code> which reads and returns the configuration file
+</li> <li> <code>template.py</code> which parses the template, reorganises it if necessary and returns the resulting tree of objects
+</li></ul> 
+<p />
+<code>lib/dao</code>
+<p />
+This directory contains the data access object modules. They are as follows:
+<p /> <ul>
+<li> <code>crem.py</code> The data access objects we use in the Hadley Centre
+to talk to the CREM database. Provided to give some example code for talking to a MySQL database. See the internal documentation for more details.
+</li> <li> <code>crem_csv.py</code> An alternative set of DAOs that read metadata from the (supplied) csv files. Provided to show you an alternative way to write data access objects.
+</li> <li> <code>dao_exception.py</code> Exceptions related to metadata problems.
+</li> <li> <code>id_dao.py</code> Data access objects for handling internal references in documents. If you provide an <code>id_dao</code> in a template, document element ids will be gathered and stored in memory as they are made. If an element contains a reference to another internal element in the document, the id is retrieved from memory and is supplied as metadata.
+</li></ul> 
+<p />
+<code>lib/elements</code>
+<p />
+This directory contains classes that represent CIM classes. The parent class is <code>element.Element</code>, which is an abstract base class for the other classes.
+<p />
+<strong>Abstract methods that must be implemented</strong>
+<p />
+If you find you need to add more element classes, you should base them on the Element abstract base class. You must implement two methods in the child class:
+<p /> <ol>
+<li> <code>cim_element(self, metadata, leaves)</code> This method should create an appropriate pyesdoc CIM object and populate required and optional attributes from the supplied metadata. "Leaves" (i.e. child classes) can be used to derive metadata in those cases that require it. For example, GridMosaic in the grids library uses the contents of <code>leaves</code> to work out whether to set its <code>is_leaf</code> attribute to True or False.
+</li> <li> <code>add_to_doc(self, doc, cim_element)</code> This method should add <code>cim_element</code> to the appropriate point in the <code>doc</code>. For example, Citation appends <code>cim_element</code> to <code>doc.citations</code>.
+</li></ol> 
+<p />
+<strong>Methods you may need to override</strong>
+<p /> <ol>
+<li> <code>container_metadata(self, container)</code> You can override this if
+your element needs access to some information about its parent to successfully
+find its metadata or to build itself. For example, to pull out information
+about model sub-components from CREM, we need to access the parent's dao to find out what model or sub-model id it has in our database.
+</li></ol> 
+<p />
+The other classes are divided up into libraries named after the CIM model (e.g. "activity", "shared", "software") with the addition of "misc" to store some pyesdoc-specific classes. Only a subset of CIM classes are currently coded up - enough to build basic model and experiment documents analogous to those produced for CMIP5. Note that I have often marked attributes as "required" even though they are optional in the CIM itself. This is to try to ensure that some useful metadata is provided when documents are built. If you want alter the metadata requirements, edit the "required" and "optional" lists for the elements of interest. Generally I have tried to use class names that are consistent with the equivalent CIM class, but there are some cases (such as "Model" and "SubModel") where I needed to distinguish between different types of "ModelComponent".
+<p />
+<h3><a name="templates"></a><a name="_templates_"></a> <code>templates</code> </h3>
+<p />
+This directory contains example templates for producing submodel, model and experiment documents that should have the same structures as those produced for CMIP5. The <code>experiment.fmt</code> document shows how you can write templates for documents that contain internal and external references. This template contains the following types of reference:
+<p /> <ol>
+<li> a reference to an external document by name (in this case, to an external model document).
+</li> <li> references to other components in the experiment document by name (for example, conformances that aren't linked to data sources) and
+</li> <li> references by id to other components in the document (for example, conformances that are linked to data sources)
+</li></ol> 
+<p />
+If you are writing a template that needs to use references, you will need to use or write some extra classes.
+<p />
+<strong>Referring to an internal component by id</strong>
+<p />
+To refer to another component inside the current document by id, use element "DocReference" in your template. You need to specify what sort of element the link is referring to (via attribute "link[type]". You can also (optionally) specify the name of the object to link to if there's only one of them, although that might make your template less flexible. You also need to specify which pyesdoc attribute the reference should be stored in. For example, a simulation run is required to specify the numerical experiment it supports, so we have the following reference section in <code>experiment.fmt</code>:
+<p />
+<pre>
+{
+     &#34;DocReference&#34;: {
+         &#34;link&#34;: {
+             &#34;type&#34;: &#34;NumericalExperiment&#34;,
+             &#34;name&#34;: &#34;&#34;
+         },
+         &#34;link&#95;to&#34;: &#34;supports&#95;references&#34;
+     }
+}
+</pre>
+<p />
+For this to work we also need to define a special "global" DAO at the top of the template:
+<p />
+<pre>
+&#34;id&#95;dao&#34;: {&#34;DocIdDao&#34;: {}},
+</pre>
+<p />
+This DAO stores the ids of pyesdoc components in memory as they are generated and is used to find ids for internal references. In the example above, a two stage process will occur:
+<p /> <ol>
+<li> the container dao (SimulationRunDao) will have its <code>name_for_reference</code> method called. This will find the matching name(s) for references by running appropriate queries.
+</li> <li> <code>id_dao</code> is used to find ids for components of the specified type and for the name(s) we just found.
+</li></ol> 
+<p />
+<strong>Referring to an internal or external component by name</strong>
+<p />
+Add a "ReferenceByName" element to your template. It needs a DAO, which should contain the usual DAO methods (<code>metadata</code> and <code>daos_for_node</code>). The methods need to be able to work out which name(s) to supply for the reference. You also need to define a <code>link_ to</code> attribute. For example, in experiment documents, we need to code a reference to an external model document. This is done in the example <code>experiment.fmt</code> template as follows:
+<p />
+<pre>
+{
+    &#34;ReferenceByName&#34;: {
+        &#34;dao&#34;: {&#34;ModelComponentRefDao&#34;: {}},
+        &#34;link&#95;to&#34;: &#34;model&#95;reference&#34;
+    }
+},
+</pre>
+<p />
+Class <code>ModelComponentRefDao</code> uses its internal attributes (project, experiment and model name) to 1) check that it can only find a single model that matches the names and 2) return the short name of the model and the reference type to use, "ModelComponent". The resulting pyesdoc "DocReference" ends up looking like this:
+<p />
+<pre>
+&#60;modelReference ontologyTypeKey&#61;&#34;cim.1.shared.DocReference&#34;&#62;
+    &#60;name&#62;HadGEM2-ES&#60;/name&#62;
+    &#60;type&#62;ModelComponent&#60;/type&#62;
+&#60;/modelReference&#62;
+</pre>
+<p />
+In this case the model reference dao can be fairly simple, but other reference DAos may need to handle possible lists of references properly. For example, some types of experiment conformance must refer to a numerical requirement by name, when the conformance isn't of a type that requires a reference to a data source. We represent these in the template as follows:
+<p />
+<pre>
+&#34;Conformance&#34;: {
+    &#34;dao&#34;: {&#34;ConformanceDao&#34;: {}},
+    &#34;contents&#34;: &#91;
+        {
+             &#34;ReferenceByName&#34;: {
+                 &#34;dao&#34;: {&#34;NumericalRequirementRefDao&#34;: {}},
+                 &#34;link&#95;to&#34;: &#34;sources&#95;references&#34;
+             }
+         }
+    ]
+}
+</pre>
+<p />
+Here we have a "Conformance" element that has its own metadata (provided by "ConformanceDao"). It also contains a document reference to a numerical requirement. NumericalRequirementsRefDao uses its container's metadata to find out which numerical requirement(s) are associated with the conformance, and then it pulls out the required metadata to build a suitable reference. This results in the following (example taken from the output experiment XML document):
+<p />
+<pre>
+    &#60;conformance ontologyTypeKey&#61;&#34;cim.1.activity.Conformance&#34;&#62;
+        &#60;description&#62;Four members initialised from the matching historical ensemble element
+             e.g. rcp85 element 2 was initialised from historical element 2. The historical
+             ensemble elements were initialised at 50-year intervals from
+             piControl.
+        &#60;/description&#62;
+        &#60;isConformant&#62;True&#60;/isConformant&#62;
+        &#60;sourcesReferences&#62;
+            &#60;sourcesReference ontologyTypeKey&#61;&#34;cim.1.shared.DocReference&#34;&#62;
+                &#60;description&#62;
+                     initial conditions from specific date and experiment (continuation run)
+                &#60;/description&#62;
+                &#60;name&#62;init&#95;continuation&#60;/name&#62;
+                &#60;type&#62;InitialCondition&#60;/type&#62;
+             &#60;/sourcesReference&#62;
+         &#60;/sourcesReferences&#62;
+         &#60;type&#62;config&#60;/type&#62;
+    &#60;/conformance&#62;
+ </pre>
+<p />
+<hr />
+<p />
+<hr />
