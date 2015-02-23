@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import copy
 
 from dao_exception import DaoConnectionException, DaoMetadataException

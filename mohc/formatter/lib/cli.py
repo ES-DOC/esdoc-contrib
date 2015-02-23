@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import getopt
 import os.path
 import sys

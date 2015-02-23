@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright: (C) Crown copyright 2015, the Met Office
 # License: GNU General Public License version 3 see
 # <http://www.gnu.org/licenses/>

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pyesdoc.ontologies.cim.v1 as cim
 
 from element import Element

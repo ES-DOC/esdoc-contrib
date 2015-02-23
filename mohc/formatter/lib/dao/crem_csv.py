@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """ Data access objects to pull metadata in from CSV files. """
 
 import copy

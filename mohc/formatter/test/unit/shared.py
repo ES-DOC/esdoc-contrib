@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pyesdoc
 
 from dao.dao_exception import DaoContractException

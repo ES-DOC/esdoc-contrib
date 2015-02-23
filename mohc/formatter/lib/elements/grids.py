@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import uuid
 
 import pyesdoc.ontologies.cim.v1 as cim
