@@ -39,7 +39,7 @@ class TestCli(unittest.TestCase):
 
     def test_encoding(self):
         self.assertEqual(
-            self.cli.encoding("xml"), pyesdoc.ESDOC_ENCODING_XML)
+            self.cli.encoding("xml"), pyesdoc.ENCODING_XML)
 
 
 if __name__ == "__main__":
