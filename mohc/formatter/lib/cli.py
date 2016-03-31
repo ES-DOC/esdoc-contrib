@@ -18,9 +18,9 @@ class PyesdocCli(object):
         self.required = required
         self.usage_msg = usage
         self.format = {
-            "xml": pyesdoc.ENCODING_XML,
-            "json": pyesdoc.ENCODING_JSON,
-            "html": pyesdoc.ENCODING_HTML}
+            "xml": pyesdoc.ESDOC_ENCODING_XML,
+            "json": pyesdoc.ESDOC_ENCODING_JSON,
+            "html": pyesdoc.ESDOC_ENCODING_HTML}
 
     def check_usage(self, argv):
         self.script_name = os.path.basename(argv[0])
