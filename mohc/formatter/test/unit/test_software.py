@@ -89,7 +89,7 @@ class TestSubModel(unittest.TestCase):
                     self.valid_metadata[attribute].decode("latin-1"))
         cim_element = shared.make_element(self)
         try:
-            xml = pyesdoc.encode(cim_element, pyesdoc.ESDOC_ENCODING_XML)
+            xml = pyesdoc.encode(cim_element, pyesdoc.ENCODING_XML)
             self.assertTrue(True)
         except:
             self.fail("pyesdoc encoding to XML failed")
