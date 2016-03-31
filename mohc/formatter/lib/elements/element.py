@@ -68,7 +68,9 @@ class Element(object):
 
     def create_element(self, element_type):
         """ Wrap pyesdoc create call. """
-        return pyesdoc.create(element_type, self.project, self.institute)
+        return pyesdoc.create(
+            element_type, project=self.project,
+            institute=self.institute, version=0)
 
     def populate_attr(self, element, metadata, required, optional):
         """ Sets required and optional elements from metadata. """

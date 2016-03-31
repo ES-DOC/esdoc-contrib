@@ -42,6 +42,8 @@ class Model(Element):
         self.populate_attr(element, metadata, required, optional)
         self.id_name = element.short_name
         self.id_dao.add_id("ModelComponent", self.id_name, element.meta.id)
+        element.meta.type = unicode(element.meta.type)
+        element.types.append(element.meta.type)
         return element
 
     def add_to_doc(self, doc, model_element):
@@ -74,6 +76,8 @@ class SubModel(Element):
             self.container_id_name = self.model
         self.id_name = "%s:%s" % (self.container_id_name, element.short_name)
         self.id_dao.add_id("ModelComponent", self.id_name, element.meta.id)
+        element.meta.type = unicode(element.type)
+        element.types.append(element.meta.type)
         return element
 
     def add_to_doc(self, doc, model_element):

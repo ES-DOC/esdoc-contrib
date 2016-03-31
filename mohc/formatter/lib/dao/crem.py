@@ -89,11 +89,7 @@ class CremDao(object):
         html_parser = HTMLParser.HTMLParser()
         clean = html_parser.unescape(clean)
 
-        #  Until Mark G. and I have decided what to do about Unicode
-        #  characters like the degree symbol, strip out anything too
-        #  big for ASCII so that I can pass str strings into pyesdoc.
-        clean = "".join(i for i in clean if ord(i) < 127)
-        return str(clean)
+        return clean
 
     def name_for_expt(self, expt_id):
         """ Returns the short name for the specified expt. """

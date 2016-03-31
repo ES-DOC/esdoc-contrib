@@ -91,7 +91,6 @@ import os
 import sys
 
 import pyesdoc
-import pyesdoc.extensions
 
 from cli import PyesdocCli
 import config
@@ -188,7 +187,6 @@ def build_doc(doc_builder):
 
 def save_doc(doc, top_node, output_path, output_format):
     encoding = _cli().encoding(output_format)
-    pyesdoc.extensions.extend(doc)
     invalid = pyesdoc.validate(doc)
     try:
         path = pyesdoc.write(doc, encoding, output_path)
