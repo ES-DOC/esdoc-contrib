@@ -8,7 +8,7 @@
 extracted from some sort of metadata store.
 
 USAGE: formatCIM.py [-c config_dir] -d model|experiment|submodel
-    [-e expt_name] -f xml|json|html [-m model_name] -o output_file
+    [-e expt_name] -f xml|json|html [-m model_name] -o output_dir
     -p project [-s submodel_name] -t template_file
 
 -c config_dir
@@ -33,7 +33,7 @@ USAGE: formatCIM.py [-c config_dir] -d model|experiment|submodel
     Valid values will depend on how your DAOs query your metadata
     store.
 
--o output_file
+-o output_dir
     Location to store the output document.
 
 -p project
@@ -189,7 +189,8 @@ def save_doc(doc, top_node, output_path, output_format):
     encoding = _cli().encoding(output_format)
     invalid = pyesdoc.validate(doc)
     try:
-        path = pyesdoc.write(doc, encoding, output_path)
+        path = pyesdoc.write(doc, output_path, encoding)
+        print "File written to %s" % path
         os.chmod(path, 0644)
     except Exception as e:
         error_exit("save_file raised an error: %s" % e)
@@ -203,7 +204,7 @@ def save_doc(doc, top_node, output_path, output_format):
 def _cli():
     usage = (
         "[-c config_dir] -d model|experiment|submodel "
-        "[-e expt_name] -f xml|json|html [-m model_name] -o output_file "
+        "[-e expt_name] -f xml|json|html [-m model_name] -o output_dir "
         "-p project [-s submodel_name] -t template_file")
     cli = PyesdocCli(
         "c:d:e:f:m:o:p:s:t:", ["-d", "-f", "-o", "-p", "-t"], usage)

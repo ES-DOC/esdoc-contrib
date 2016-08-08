@@ -73,13 +73,18 @@ class CremDao(object):
         return metadata
 
     def clean_string(self, to_clean):
-        """ Clean up special characters and multiple blank lines in
-        our long strings. We can have Windows line feeds (which we
-        translate to Linux newlines), multiple blank lines that we
-        want to squash down to just one blank line, HTML character
-        entities and Unicode chars that are currently giving Mark G
-        and I difficulties.
+        """ Clean up special characters and multiple blank lines. We
+        can encounter Windows line feeds (which we translate to Linux
+        newlines), multiple blank lines that we want to squash down to
+        just one blank line and HTML character entities.
         """
+        if len(to_clean) == 0:
+            # If we set a [0..] attribute in an element to "",
+            # pyesdoc validation considers it to be set but empty,
+            # which leads to validation errors. We need to set empty
+            # strings to None to avoid this.
+            return None
+
         clean = re.sub(r"(\r\n)", "\n", to_clean)   # Windows newlines
         clean = re.sub(r"(\n){3,}", "\n\n", clean)  # squash blank lines
 
@@ -89,7 +94,7 @@ class CremDao(object):
         html_parser = HTMLParser.HTMLParser()
         clean = html_parser.unescape(clean)
 
-        return clean
+        return unicode(clean)
 
     def name_for_expt(self, expt_id):
         """ Returns the short name for the specified expt. """

@@ -6,7 +6,7 @@
             {
                 "ReferenceByName": {
 		    "dao": {"ModelComponentRefDao": {}},
-		    "link_to": "model_reference"
+		    "link_to": "model"
                 }
             },
             {
@@ -50,7 +50,7 @@
                                                 "type": "DataObject",
                                                 "name": ""
                                             },
-                                            "link_to": "sources_references"
+                                            "link_to": "sources"
                                         }
                                     }
                                 ]
@@ -63,7 +63,7 @@
                                     {
                                         "ReferenceByName": {
                                             "dao": {"NumericalRequirementRefDao": {}},
-                                            "link_to": "sources_references"
+                                            "link_to": "sources"
                                         }
                                     }
                                 ]
@@ -79,7 +79,7 @@
                                                 "type": "Platform",
                                                 "name": ""
                                             },
-                                            "link_to": "platform_reference"
+                                            "link_to": "platform"
                                         }
                                      }
                                 ]
@@ -91,7 +91,7 @@
                                     "type": "NumericalExperiment",
                                     "name": ""
                                 },
-                                "link_to": "supports_references"
+                                "link_to": "supports"
                             }
                         }
                     ]
@@ -107,7 +107,7 @@
                                      "type": "NumericalExperiment",
                                      "name": ""
                                  },
-                                 "link_to": "supports_reference"
+                                 "link_to": "supports"
                             }
                         },
                         {
@@ -120,7 +120,7 @@
                                                 "type": "SimulationRun",
                                                 "name": ""
                                             },
-                                            "link_to": "simulation_reference"
+                                            "link_to": "simulation"
                                         }
                                     }
                                 ]

@@ -78,7 +78,7 @@ class DocReference(Element):
         # Avoid adding null references to a document.
         if self.null:
             return
-        if re.match(".*references", self.link_to):
+        if re.match(".*s$", self.link_to):
             # We are adding to a list.
             current = getattr(doc, self.link_to)
             current.append(model_element)
@@ -113,7 +113,7 @@ class ReferenceByName(Element):
         return element
 
     def add_to_doc(self, doc, model_element):
-        if re.match(".*references", self.link_to):
+        if re.match(".*s$", self.link_to):
             # Adding to a list.
             current = getattr(doc, self.link_to)
             current.append(model_element)
